@@ -1,10 +1,17 @@
 ---
 # tasks file for arillso.chocolatey
+- name: Chocolatey source present
+  win_shell: "choco source add -n={{ item.name }} -s={{ item.source }} -u={{ item.user }} -p={{ item.password }} --priority={{ item.priority | default('0') }}"
+  with_items: "{{ chocolatey_source }}"
+  when: item.name is defined and item.state == 'present'
+  register: chocolatey_source_present
+  tags:
+    - configuration
+  changed_when: "'Nothing to change. Config already set' not in chocolatey_source_present.stdout"
 
 - name: Install chocolatey
   win_chocolatey:
     name: chocolatey
-    state: latest
   tags:
     - packages
 
@@ -16,12 +23,3 @@
   tags:
     - configuration
   changed_when: "'Nothing to change. Config already set' not in chocolatey_source_absent.stdout"
-
-- name: Chocolatey source present
-  win_shell: "choco source add -n={{ item.name }} -s={{ item.source }} -u={{ item.user }} -p={{ item.password }} --priority={{ item.priority | default('0') }}"
-  with_items: "{{ chocolatey_source }}"
-  when: item.name is defined and item.state == 'present'
-  register: chocolatey_source_present
-  tags:
-    - configuration
-  changed_when: "'Nothing to change. Config already set' not in chocolatey_source_present.stdout"
