@@ -9,6 +9,15 @@
     - configuration
   changed_when: "'Nothing to change. Config already set' not in chocolatey_source_present.stdout"
 
+- name: Chocolatey source enabled
+  win_shell: "choco source enable -n {{ item.name }}"
+  with_items: "{{ chocolatey_source }}"
+  when: item.name is defined and item.state == 'present'
+  register: chocolatey_source_enabled
+  tags:
+    - configuration
+  changed_when: "'Nothing to change. Config already set' not in chocolatey_source_enabled.stdout"
+
 - name: Install chocolatey
   win_chocolatey:
     name: chocolatey
